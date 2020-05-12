@@ -1,0 +1,24 @@
+box: wercker-labs/docker
+build:
+  steps:
+    - script:
+        name: Check docker version
+        code: |
+          docker -v
+    - script:
+        name: Build quay.io/wantedly/nginx-image-server
+        code: |
+          cd ${WERCKER_SOURCE_DIR}
+          docker build -t quay.io/wantedly/nginx-image-server .
+    - script:
+        name: Run quay.io/wantedly/nginx-image-server
+        code: >
+          script/run -d
+    - script:
+        name: Run tester
+        code: >
+          script/run-infrataster
+  after-steps:
+    - wantedly/pretty-slack-notify:
+        webhook_url: $SLACK_WEBHOOK_URL
+        channel: $SLACK_CHANNEL
